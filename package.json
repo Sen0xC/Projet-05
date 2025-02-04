@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "@hapi/eslint-config-hapi": "^13.0.2",
+    "@hapi/eslint-plugin-hapi": "^4.3.6",
+    "eslint": "^9.18.0"
+  },
+  "dependencies": {
+    "@hapi/hapi": "^21.3.12",
+    "es6-promise": "^4.2.8"
+  }
+}
