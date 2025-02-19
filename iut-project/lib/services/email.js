@@ -4,37 +4,49 @@ const Nodemailer = require('nodemailer');
 
 class EmailService {
     constructor() {
-        // Create reusable transporter using Ethereal
+        console.log('Creating email transporter with:', {
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT,
+            user: process.env.SMTP_USER
+        });
+        
         this.transporter = Nodemailer.createTransport({
-            host: 'smtp.ethereal.email',
-            port: 587,
+            host: process.env.SMTP_HOST,
+            port: parseInt(process.env.SMTP_PORT),
             secure: false,
             auth: {
-                user: 'gqdqxd3vrihqxz2h@ethereal.email',
-                pass: 'enK5suteFN7U4r7Mvu'
-            }
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS
+            },
+            debug: true // Enable debug logging
         });
     }
 
     async sendWelcomeEmail(user) {
-        try {
-            const info = await this.transporter.sendMail({
-                from: '"Hapi App" <gqdqxd3vrihqxz2h@ethereal.email>',
-                to: user.email,
-                subject: 'Welcome to Our App!',
-                text: `Hello ${user.firstName},\n\nWelcome to our application! We're excited to have you on board.\n\nBest regards,\nThe Team`,
-                html: `
-                    <h1>Welcome ${user.firstName}!</h1>
-                    <p>We're excited to have you on board.</p>
-                    <p>Best regards,<br>The Team</p>
-                `
-            });
+        return this.sendMail({
+            to: user.email,
+            subject: 'Welcome to Movie App!',
+            text: `Hello ${user.firstName},\n\nWelcome to Movie App!`,
+            html: `<h1>Welcome to Movie App!</h1><p>Hello ${user.firstName},</p><p>Thank you for joining!</p>`
+        });
+    }
 
-            console.log('Message sent: %s', info.messageId);
-            console.log('Preview URL: %s', Nodemailer.getTestMessageUrl(info));
-            return info;
+    async sendMail(options) {
+        try {
+            console.log('Sending email to:', options.to);
+            const info = await this.transporter.sendMail({
+                from: process.env.SMTP_FROM,
+                ...options
+            });
+            console.log('Email sent:', info.messageId);
+            const previewUrl = Nodemailer.getTestMessageUrl(info);
+            console.log('Preview URL:', previewUrl);
+            return {
+                ...info,
+                previewUrl
+            };
         } catch (error) {
-            console.error('Error sending welcome email:', error);
+            console.error('Error sending email:', error);
             throw error;
         }
     }

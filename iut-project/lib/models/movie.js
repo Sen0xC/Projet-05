@@ -2,7 +2,6 @@
 
 const Joi = require('joi');
 const { Model } = require('@hapipal/schwifty');
-const Boom = require('@hapi/boom');
 
 module.exports = class Movie extends Model {
     static get tableName() {
@@ -16,7 +15,10 @@ module.exports = class Movie extends Model {
             description: Joi.string().required().description('Movie description'),
             releaseDate: Joi.date().required().description('Movie release date'),
             director: Joi.string().required().description('Movie director'),
-            favoriteByUsers: Joi.array().items(Joi.number().integer()).required(),
+            favoriteByUsers: Joi.alternatives().try(
+                Joi.array().items(Joi.number().integer()),
+                Joi.string()
+            ).default('[]'),
             createdAt: Joi.date(),
             updatedAt: Joi.date()
         });
@@ -25,11 +27,24 @@ module.exports = class Movie extends Model {
     $beforeInsert(queryContext) {
         this.createdAt = new Date();
         this.updatedAt = new Date();
-        this.favoriteByUsers = this.favoriteByUsers || [];
+        
+        // Ensure favoriteByUsers is initialized
+        if (!this.favoriteByUsers) {
+            this.favoriteByUsers = '[]';
+        }
+        // Convert array to string if necessary
+        if (Array.isArray(this.favoriteByUsers)) {
+            this.favoriteByUsers = JSON.stringify(this.favoriteByUsers);
+        }
     }
 
     $beforeUpdate(opt, queryContext) {
         this.updatedAt = new Date();
+        
+        // Convert array to string if necessary
+        if (Array.isArray(this.favoriteByUsers)) {
+            this.favoriteByUsers = JSON.stringify(this.favoriteByUsers);
+        }
     }
 
     static get relationMappings() {
@@ -42,8 +57,8 @@ module.exports = class Movie extends Model {
                 join: {
                     from: 'movies.id',
                     through: {
-                        from: 'favorites.movieId',
-                        to: 'favorites.userId'
+                        from: 'movie_favorites.movieId',
+                        to: 'movie_favorites.userId'
                     },
                     to: 'user.id'
                 }
