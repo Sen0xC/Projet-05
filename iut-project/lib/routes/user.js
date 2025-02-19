@@ -15,7 +15,8 @@ module.exports = [
                 lastName: Joi.string().required().min(3).example('Doe').description('Lastname of the user'),
                 email: Joi.string().required().email().example('john@doe.fr').description('Email of the user'),
                 password: Joi.string().required().example('password').description('Password of the user'),
-                username: Joi.string().required().example('johndoe').description('Username of the user')
+                username: Joi.string().required().example('johndoe').description('Username of the user'),
+                roles: Joi.array().items(Joi.string()).default(['user']).example(['admin']).description('User roles')
             })
         }
     },

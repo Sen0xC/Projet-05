@@ -2,6 +2,7 @@
 
 const Joi = require('joi');
 const { Model } = require('@hapipal/schwifty');
+const EmailService = require('../services/email');
 
 module.exports = class User extends Model {
 
@@ -23,6 +24,17 @@ module.exports = class User extends Model {
             createdAt: Joi.date(),
             updatedAt: Joi.date()
         });
+    }
+
+    async $afterInsert(queryContext) {
+        try {
+            const emailService = new EmailService();
+            await emailService.sendWelcomeEmail(this);
+        }
+        catch (error) {
+            console.error('Failed to send welcome email:', error);
+            // We don't throw the error here to prevent rolling back the user creation
+        }
     }
 
     $beforeInsert(queryContext) {
