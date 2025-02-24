@@ -53,3 +53,29 @@ Une API RESTful construite avec Hapi.js permettant la gestion de films, d'utilis
 ```bash
 git clone <repo-url>
 cd iut-project
+```
+
+## Installation and Setup
+```
+npm install
+```
+
+### Database Configuration
+1. Configure database connection in `.env`:
+```env
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_password
+DB_DATABASE=your_database
+DB_PORT=3308
+```
+
+## Reset database
+```
+node reset-db.js
+```
+
+## Start server
+```
+npm start
+```
